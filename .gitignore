@@ -1,3 +1,8 @@
 udacity_sim_term3
 *.swp
 ./build/*
+CMakeFiles/
+Makefile
+build/
+cmake_install.cmake
+path_planning
