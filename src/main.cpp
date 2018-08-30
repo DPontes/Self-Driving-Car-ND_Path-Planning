@@ -6,7 +6,7 @@
 #include <thread>
 #include <vector>
 #include "Eigen-3.3/Eigen/Core"
-#include "Eigen-3.3/Eigen.QR"
+#include "Eigen-3.3/Eigen/QR"
 #include "json.hpp"
 
 using namespace std;
@@ -61,7 +61,7 @@ int ClosestWaypoint(double x,
 int NextWaypoint(double x,
                  double y,
                  double theta,
-                 const vactor<double> &maps_x,
+                 const vector<double> &maps_x,
                  const vector<double> &maps_y) {
     int closestWaypoint = ClosestWaypoint(x, y, maps_x, maps_y);
 
@@ -101,7 +101,7 @@ vector<double> getFrenet(double x,
 
     // Find the projection of x onto n
     double proj_norm =  (x_x * n_x + x_y * n_y) /
-                        (n_x * n_x + n_y * n_y)
+                        (n_x * n_x + n_y * n_y);
     double proj_x = proj_norm * n_x;
     double proj_y = proj_norm * n_y;
     double frenet_d = distance(x_x, x_y, proj_x, proj_y);
@@ -119,7 +119,7 @@ vector<double> getFrenet(double x,
     // Calculate s value
     double frenet_s = 0;
     for (int i = 0; i < prev_wp; i++) {
-        frenet_s += distance(maps_x[i], maps_y[i], maps_x[i+1], maps_y[i+1])
+        frenet_s += distance(maps_x[i], maps_y[i], maps_x[i+1], maps_y[i+1]);
     }
     frenet_s += distance(0, 0, proj_x, proj_y);
 
@@ -134,7 +134,7 @@ vector<double> getXY(double s,
                      const vector<double> &maps_y) {
     int prev_wp = -1;
 
-    while (s > maps_s[prev_wp + 1] && (prev_wp < <int>(maps_s.size()0) )) {
+    while (s > maps_s[prev_wp + 1] && (prev_wp < (int)(maps_s.size()) )) {
         prev_wp++;
     }
 
@@ -239,7 +239,7 @@ int main() {
                     json msgJson;
 
                     vector<double> next_x_vals;
-                    vecotr<double> next_y_vals;
+                    vector<double> next_y_vals;
 
                     // TODO(Diogo): define a path made up of (x,y) points
                     // that the car will visit sequentially every .02sec
@@ -249,7 +249,7 @@ int main() {
                     auto msg = "42[\"control\"," + msgJson.dump()+"]";
 
                     // this_thread::sleep_for(chrono::milliseconds(1000));
-                    ws.send(msg.data(), msg.length(), uWS::opCode::TEXT);
+                    ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
                 }
             } else {
                 // Manual driving
@@ -288,7 +288,7 @@ int main() {
         std::cout << "Disconnected!!!" << std::endl;
     });
 
-    int port 4567;
+    int port = 4567;
     if (h.listen(port)) {
         std::cout << "Listening to port " << port << std::endl;
     } else {
@@ -297,4 +297,4 @@ int main() {
     }
     h.run();
 }
-}
+

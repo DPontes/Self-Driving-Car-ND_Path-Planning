@@ -1,2 +1,3 @@
 udacity_sim_term3
 *.swp
+./build/*
