@@ -243,7 +243,7 @@ int main() {
 
                     // Define a path made up of (x,y) points
                     // that the car will visit sequentially every .02sec
-                    double dist_inc = 0.5;
+                    double dist_inc = 0.45;
                     int path_planning_size = 50;
 
                     for (int i = 0; i < path_planning_size; i++) {
@@ -252,14 +252,14 @@ int main() {
                         // TODO(diogo): Doesn't seem like a good idea
                         // to have a variable declaration with a function
                         // call in a loop. This can be better...
-                        vector<double> v_frenet2cart = getXY(next_s,
-                                                        next_d,
-                                                        map_waypoints_s,
-                                                        map_waypoints_x,
-                                                        map_waypoints_y);
+                        vector<double> v_cartesian = getXY(next_s,
+                                                           next_d,
+                                                           map_waypoints_s,
+                                                           map_waypoints_x,
+                                                           map_waypoints_y);
 
-                        next_x_vals.push_back(v_frenet2cart[0]);
-                        next_y_vals.push_back(v_frenet2cart[1]);
+                        next_x_vals.push_back(v_cartesian[0]);
+                        next_y_vals.push_back(v_cartesian[1]);
                     }
 
                     msgJson["next_x"] = next_x_vals;
