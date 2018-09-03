@@ -134,7 +134,7 @@ vector<double> getXY(double s,
                      const vector<double> &maps_y) {
     int prev_wp = -1;
 
-    while (s > maps_s[prev_wp + 1] && (prev_wp < (int)(maps_s.size()) )) {
+    while (s > maps_s[prev_wp + 1] && (prev_wp < (int)(maps_s.size() - 1) )) {
         prev_wp++;
     }
 
@@ -143,7 +143,7 @@ vector<double> getXY(double s,
                            (maps_x[wp2] - maps_x[prev_wp]));
 
     // The x, y, s along the segment
-    double seg_s = (s - maps_s[prev_wp]);
+    double seg_s = s - maps_s[prev_wp];
     double seg_x = maps_x[prev_wp] + seg_s * cos(heading);
     double seg_y = maps_y[prev_wp] + seg_s * sin(heading);
     double perp_heading = heading - pi() / 2;
@@ -241,16 +241,25 @@ int main() {
                     vector<double> next_x_vals;
                     vector<double> next_y_vals;
 
-                    // TODO(Diogo): define a path made up of (x,y) points
+                    // Define a path made up of (x,y) points
                     // that the car will visit sequentially every .02sec
                     double dist_inc = 0.5;
                     int path_planning_size = 50;
 
                     for (int i = 0; i < path_planning_size; i++) {
-                        next_x_vals.push_back(car_x + (dist_inc * i)
-                                                * cos(deg2rad(car_yaw)));
-                        next_y_vals.push_back(car_y + (dist_inc * i)
-                                                * sin(deg2rad(car_yaw)));
+                        double next_s = car_s + (i + 1) * dist_inc;
+                        double next_d = 6;
+                        // TODO(diogo): Doesn't seem like a good idea
+                        // to have a variable declaration with a function
+                        // call in a loop. This can be better...
+                        vector<double> v_frenet2cart = getXY(next_s,
+                                                        next_d,
+                                                        map_waypoints_s,
+                                                        map_waypoints_x,
+                                                        map_waypoints_y);
+
+                        next_x_vals.push_back(v_frenet2cart[0]);
+                        next_y_vals.push_back(v_frenet2cart[1]);
                     }
 
                     msgJson["next_x"] = next_x_vals;
