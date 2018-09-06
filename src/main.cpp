@@ -198,9 +198,9 @@ int main() {
     int lane = 1;
 
     // Have a reference velocity to target
-    double ref_velocity = 0.0;      // mph
-    double speed_delta = 0.224;     // about 5m/s
-
+    double ref_velocity = 0.0;              // mph
+    double speed_delta = 0.224;             // about 5m/s
+    double max_allowed_velocity = 49.5;     // mph
 
     h.onMessage([&map_waypoints_x,
                  &map_waypoints_y,
@@ -208,6 +208,7 @@ int main() {
                  &map_waypoints_dx,
                  &map_waypoints_dy,
                  &lane,
+                 &max_allowed_velocity,
                  &ref_velocity,
                  &speed_delta](uWS::WebSocket<uWS::SERVER> ws,
                  char *data,
@@ -278,13 +279,20 @@ int main() {
                             if ((check_car_s > car_s) &&
                                 ((check_car_s - car_s) < gap)) {
                                 too_close = true;
+                                if (lane > 0) {
+                                // TODO(diogo): here needs to logic to
+                                // verify how is the situation of the
+                                // in the lanes to the left and right
+                                // before changing lane
+                                    lane = 0;   // blindly turn left
+                                }
                             }
                         }
                     }
 
                     if (too_close) {
                         ref_velocity -= speed_delta;
-                    } else if (ref_velocity < 49.5) {
+                    } else if (ref_velocity < max_allowed_velocity) {
                         ref_velocity += speed_delta;
                     }
 
