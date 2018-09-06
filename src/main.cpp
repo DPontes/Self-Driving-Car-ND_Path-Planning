@@ -247,6 +247,35 @@ int main() {
 
                     int prev_size = previous_path_x.size();
 
+                    if (prev_size > 0) {
+                        car_s = end_path_s;
+                    }
+
+                    bool too_close = false;
+
+                    // Go through the list of all cars on the road
+                    // to see if any of them is in my lane
+                    for (int i = 0; i < sensor_fusion.size(); i++) {
+                        // car is in my lane
+                        float d = sensor_fusion[i][6];
+                        if (d < (2 + 4 * lane + 2) && d > (2 + 4 * lane - 2)) {
+                            double vx = sensor_fusion[i][3];
+                            double vy = sensor_fusion[i][4];
+                            double check_speed = sqrt(vx * vx + vy * vy);
+                            double check_car_s = sensor_fusion[i][5];
+
+                            check_car_s += ((double)prev_size *
+                                            0.02 * check_speed);
+
+                            // Check s values greater than mine and s gap
+                            int gap = 30;
+                            if ((check_car_s > car_s) &&
+                                ((check_car_s - car_s) < gap)) {
+                                ref_velocity = 29.5;    // mph
+                            }
+                        }
+                    }
+
                     // Create a list of widely spaced (x,y) waypoints,
                     // evenly spaced at 30m. Later we will interpolate these
                     // waypoints with a spline and fill it in with more points
