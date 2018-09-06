@@ -278,6 +278,9 @@ int main() {
                             if ((check_car_s > car_s) &&
                                 ((check_car_s - car_s) < gap)) {
                                 too_close = true;
+                                if (lane > 0) {
+                                    lane = 0;   // blindly turn left
+                                }
                             }
                         }
                     }
