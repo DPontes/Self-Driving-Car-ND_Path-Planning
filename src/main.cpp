@@ -9,6 +9,7 @@
 #include "Eigen-3.3/Eigen/QR"
 #include "json.hpp"
 #include "./spline.h"
+#include "./vehicle.h"
 
 using namespace std;
 
@@ -199,8 +200,8 @@ int main() {
 
     // Have a reference velocity to target
     double ref_velocity = 0.0;              // mph
-    double speed_delta = 0.224;             // about 5m/s
-    double max_allowed_velocity = 49.5;     // mph
+
+    Vehicle vehicle = Vehicle(lane, ref_velocity);
 
     h.onMessage([&map_waypoints_x,
                  &map_waypoints_y,
@@ -208,9 +209,8 @@ int main() {
                  &map_waypoints_dx,
                  &map_waypoints_dy,
                  &lane,
-                 &max_allowed_velocity,
-                 &ref_velocity,
-                 &speed_delta](uWS::WebSocket<uWS::SERVER> ws,
+                 &vehicle,
+                 &ref_velocity](uWS::WebSocket<uWS::SERVER> ws,
                  char *data,
                  size_t length,
                  uWS::OpCode opCode) {
@@ -258,43 +258,18 @@ int main() {
                     }
 
                     bool too_close = false;
+                    double match_speed = 0;
 
-                    // Go through the list of all cars on the road
-                    // to see if any of them is in my lane
-                    for (int i = 0; i < sensor_fusion.size(); i++) {
-                        // car is in my lane
-                        float d = sensor_fusion[i][6];
-                        if (d < (2 + 4 * lane + 2) && d > (2 + 4 * lane - 2)) {
-                            double vx = sensor_fusion[i][3];
-                            double vy = sensor_fusion[i][4];
-                            double check_speed = sqrt(vx * vx + vy * vy);
-                            double check_car_s = sensor_fusion[i][5];
+                    // Compute next state
+                    vehicle.Update(car_x, car_y, car_s, car_d, car_yaw,
+                                    car_speed, lane, ref_velocity,
+                                    prev_size*0.02);
+                    vehicle.NextState(sensor_fusion);
 
-                            check_car_s += ((double)prev_size *
-                                            0.02 * check_speed);
-
-                            // Check s values greater than mine and s gap
-                            int gap = 30;
-
-                            if ((check_car_s > car_s) &&
-                                ((check_car_s - car_s) < gap)) {
-                                too_close = true;
-                                if (lane > 0) {
-                                // TODO(diogo): here needs to logic to
-                                // verify how is the situation of the
-                                // in the lanes to the left and right
-                                // before changing lane
-                                    lane = 0;   // blindly turn left
-                                }
-                            }
-                        }
-                    }
-
-                    if (too_close) {
-                        ref_velocity -= speed_delta;
-                    } else if (ref_velocity < max_allowed_velocity) {
-                        ref_velocity += speed_delta;
-                    }
+                    // Update lane and speed reference
+                    // in order to generate path
+                    lane = vehicle.update.lane;
+                    ref_velocity = vehicle.update.ref_v;
 
                     // Create a list of widely spaced (x,y) waypoints,
                     // evenly spaced at 30m. Later we will interpolate these
@@ -343,8 +318,6 @@ int main() {
 
                     // In Frenet add evenly 30m spaced points ahead of the
                     // starting reference
-                    // TODO(diogo): These 3 calls to the same function
-                    // can be written in another way
                     vector<double> next_wp0 = getXY(car_s + 30,
                                                     (2+4*lane),
                                                     map_waypoints_s,
