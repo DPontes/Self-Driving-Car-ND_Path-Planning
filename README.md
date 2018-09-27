@@ -49,11 +49,11 @@ Finally, the path is generated using the spline math tool.
 
 #### Accronyms
 
-KL - Keep Lane
-PLCL - Prepare Lane Change Left
-PLCR - Prepare Lane Change Right
-LCL - Lane Change Left
-LCR - Lane Change Right
+* KL - Keep Lane
+* PLCL - Prepare Lane Change Left
+* PLCR - Prepare Lane Change Right
+* LCL - Lane Change Left
+* LCR - Lane Change Right
 
 ### Finite State Machine
 
@@ -195,7 +195,7 @@ s.set_points(ptsx, ptsy);
 
 After, with the spline function already done, we have to recompute the map points back from the curve. This task is accomplished by breaking up the spline into equidistant points that respect the desired speed.
 
-![alt text][image3]
+![alt text][images/spline.png "Spline equidistant points."]
 
 Considering the time interval of 20ms, the travel distance of 30 meters on x-axis with the speed "ref_speed", we have:
 
