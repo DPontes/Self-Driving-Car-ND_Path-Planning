@@ -208,3 +208,29 @@ double target_dist = sqrt(target_x * target_x + target_y * target_y);
 // N distance
 double N = target_dist / (.02 * ref_velocity);
 ```
+
+Finally, the final part is to compute the coordinates from spline and shift its orientation back.
+```cpp
+x_add_on = x_point;
+for(int i = 0; i < 50-previous_path_x.size(); i++){
+  //map X coordinate distance for every spline point
+  double x_point = x_add_on + (target_x)/N;
+  double y_point = s(x_point);
+  //increment for next spline point
+  x_add_on = x_point;
+
+  double x_ref = x_point;
+  double y_ref = y_point;
+
+  //rotate back to normal after rotation it earlier
+  x_point = (x_ref * cos(ref_yaw)-y_ref*sin(ref_yaw));
+  y_point = (x_ref * sin(ref_yaw)+y_ref*cos(ref_yaw));
+
+  x_point += ref_x;
+  y_point += ref_y;
+
+  //return to simulator
+  next_x_vals.push_back(x_point);
+  next_y_vals.push_back(y_point);
+}
+```
